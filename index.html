@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inception — Study Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0e1219;
+    --surface2: #141922;
+    --border: rgba(255,255,255,0.06);
+    --accent: #4af0c4;
+    --accent2: #f0744a;
+    --accent3: #7a6ff0;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --danger: #f05a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,240,196,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,240,196,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 64px;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-tag::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .header-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  /* Stats bar */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 64px;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent3), transparent);
+    opacity: 0.3;
+  }
+
+  .phase {
+    margin-bottom: 48px;
+    padding-left: 60px;
+    position: relative;
+  }
+
+  .phase-dot {
+    position: absolute;
+    left: 12px;
+    top: 16px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phase-dot::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .phase-dot.orange { border-color: var(--accent2); }
+  .phase-dot.orange::after { background: var(--accent2); }
+  .phase-dot.purple { border-color: var(--accent3); }
+  .phase-dot.purple::after { background: var(--accent3); }
+  .phase-dot.red { border-color: var(--danger); }
+  .phase-dot.red::after { background: var(--danger); }
+  .phase-dot.bonus { border-color: gold; }
+  .phase-dot.bonus::after { background: gold; }
+
+  .phase-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .phase-title-group {}
+
+  .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .phase-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .phase-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .badge-days {
+    background: rgba(74,240,196,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(74,240,196,0.2);
+  }
+
+  .badge-hours {
+    background: rgba(240,116,74,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(240,116,74,0.2);
+  }
+
+  .badge-type {
+    background: rgba(122,111,240,0.1);
+    color: var(--accent3);
+    border: 1px solid rgba(122,111,240,0.2);
+  }
+
+  .badge-bonus {
+    background: rgba(255,215,0,0.1);
+    color: gold;
+    border: 1px solid rgba(255,215,0,0.2);
+  }
+
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .phase-desc {
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topics {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topics-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .topic-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .topic-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text);
+  }
+
+  .exercises {
+    padding: 16px 20px;
+  }
+
+  .exercises-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .exercise-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+
+  .exercise-item:last-child { margin-bottom: 0; }
+
+  .ex-arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .ex-arrow.orange { color: var(--accent2); }
+  .ex-arrow.purple { color: var(--accent3); }
+  .ex-arrow.gold { color: gold; }
+
+  .ex-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #a0a8b8;
+    line-height: 1.6;
+  }
+
+  /* Warning block */
+  .warning {
+    background: rgba(240,90,106,0.05);
+    border: 1px solid rgba(240,90,106,0.2);
+    border-left: 3px solid var(--danger);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #f08090;
+    line-height: 1.6;
+  }
+
+  .warning strong { color: var(--danger); }
+
+  /* Section dividers */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0 32px;
+    padding-left: 60px;
+  }
+
+  .divider-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    white-space: nowrap;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Total summary */
+  .summary {
+    margin-top: 64px;
+    padding-left: 60px;
+  }
+
+  .summary-card {
+    background: linear-gradient(135deg, rgba(74,240,196,0.05), rgba(122,111,240,0.05));
+    border: 1px solid rgba(74,240,196,0.15);
+    border-radius: 16px;
+    padding: 32px;
+  }
+
+  .summary-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-row:last-child { border-bottom: none; }
+
+  .summary-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .summary-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .summary-total {
+    background: rgba(74,240,196,0.08);
+    border: 1px solid rgba(74,240,196,0.2);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .summary-total-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .summary-total-val {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .summary-grid { grid-template-columns: 1fr; }
+    .phase { padding-left: 44px; }
+    .section-divider { padding-left: 44px; }
+    .summary { padding-left: 44px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-tag">42 Network — Morocco</div>
+    <h1>INCEPTION<br><span>ROADMAP</span></h1>
+    <p class="header-sub">
+      A precise study map for the Inception project.<br>
+      Theory + practice + exercises. No fluff.
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-num">8</span>
+      <span class="stat-label">Phases</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">19</span>
+      <span class="stat-label">Days mandatory</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">~4h</span>
+      <span class="stat-label">Per day</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">+4</span>
+      <span class="stat-label">Bonus days</span>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+
+    <!-- Phase 0 -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 00</div>
+          <div class="phase-title">Linux Processes & Daemons</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">2 days</span>
+          <span class="badge badge-hours">3–4h/day</span>
+          <span class="badge badge-type">Theory</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          Foundation. Docker is just isolated Linux processes. If you don't understand what PID 1 is and why it matters, you will write broken entrypoints and not know why containers keep dying.
+        </div>
+        <div class="topics">
+          <div class="topics-label">Topics</div>
+          <div class="topic-list">
+            <span class="topic-pill">PID 1</span>
+            <span class="topic-pill">process tree</span>
+            <span class="topic-pill">signals (SIGTERM/SIGKILL)</span>
+            <span class="topic-pill">foreground vs daemon</span>
+            <span class="topic-pill">exec vs fork</span>
+            <span class="topic-pill">file permissions</span>
+            <span class="topic-pill">users & groups</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Exercises</div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Write a shell script that spawns a child process. Use <code>ps aux</code> to find both PIDs and observe the tree. Then kill the parent — what happens to the child?</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Read the "zombie process" and "orphan process" Wikipedia entries. Understand why init/PID 1 adopts orphans.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Run nginx directly in a terminal (foreground). Then run it as a daemon. Compare <code>ps</code> output. Understand what the daemon does differently.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 1 -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 01</div>
+          <div class="phase-title">Docker Core Concepts</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">2 days</span>
+          <span class="badge badge-hours">3–4h/day</span>
+          <span class="badge badge-type">Theory + Light Practice</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          Don't touch commands yet. Understand what Docker actually is. Image = filesystem snapshot. Container = isolated process running from that snapshot. Not a VM — no kernel, no boot sequence.
+        </div>
+        <div class="topics">
+          <div class="topics-label">Topics</div>
+          <div class="topic-list">
+            <span class="topic-pill">images vs containers</span>
+            <span class="topic-pill">layers & union filesystem</span>
+            <span class="topic-pill">namespaces</span>
+            <span class="topic-pill">cgroups</span>
+            <span class="topic-pill">docker vs VM</span>
+            <span class="topic-pill">image registry</span>
+            <span class="topic-pill">docker run lifecycle</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Exercises</div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Pull <code>debian:bookworm-slim</code>. Run it interactively. Install <code>curl</code> inside. Exit. Delete the container. Run again — <code>curl</code> is gone. Understand why.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Use <code>docker inspect</code> to find the container's PID on the host machine. Then run <code>ps aux | grep [that PID]</code> on the host. Confirm it's just a process.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Use <code>docker image history debian:bookworm-slim</code> to see its layers. Understand what each layer represents.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase">
+      <div class="phase-dot orange"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 02</div>
+          <div class="phase-title">Dockerfile — Writing Images</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">3 days</span>
+          <span class="badge badge-hours">4h/day</span>
+          <span class="badge badge-type">Practice-heavy</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          The most important skill in this project. You build all three images yourself — no ready-made pulls. Focus hardest on CMD vs ENTRYPOINT and how to write an entrypoint script that starts your service as PID 1 without forbidden hacks.
+        </div>
+        <div class="topics">
+          <div class="topics-label">Topics</div>
+          <div class="topic-list">
+            <span class="topic-pill">FROM / RUN / COPY</span>
+            <span class="topic-pill">WORKDIR / EXPOSE</span>
+            <span class="topic-pill">CMD vs ENTRYPOINT</span>
+            <span class="topic-pill">exec form vs shell form</span>
+            <span class="topic-pill">exec "$@" pattern</span>
+            <span class="topic-pill">ARG vs ENV</span>
+            <span class="topic-pill">layer caching</span>
+            <span class="topic-pill">.dockerignore</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Exercises</div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Day 1: Write a Dockerfile for a plain nginx from <code>debian:bookworm-slim</code>. No config yet — just install nginx and make it start as PID 1. Verify with <code>docker exec &lt;id&gt; ps aux</code> that nginx is PID 1 inside.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Day 2: Add an entrypoint shell script. The script does some setup, then <code>exec "$@"</code> to hand control to nginx. Understand why <code>exec</code> is critical here (signal forwarding, PID 1 replacement).</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Day 3: Intentionally break the Dockerfile 3 different ways (wrong CMD form, missing exec, wrong base). Debug each. Knowing how it breaks teaches you more than getting it right the first time.</span>
+          </div>
+        </div>
+        <div class="warning">
+          <strong>Trap:</strong> Shell form of CMD/ENTRYPOINT (e.g., <code>CMD "nginx -g..."</code>) wraps the command in <code>/bin/sh -c</code>, meaning nginx is NOT PID 1 — sh is. Signals won't reach nginx. Always use exec form: <code>CMD ["nginx", "-g", "daemon off;"]</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase">
+      <div class="phase-dot orange"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 03</div>
+          <div class="phase-title">Docker Compose + Network + Volumes</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">2 days</span>
+          <span class="badge badge-hours">3–4h/day</span>
+          <span class="badge badge-type">Theory + Practice</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          Compose is just orchestration YAML. But the network and volumes sections are what the evaluator will grill you on. Understand exactly why <code>wordpress</code> resolves to the WordPress container's IP inside the Docker network.
+        </div>
+        <div class="topics">
+          <div class="topics-label">Topics</div>
+          <div class="topic-list">
+            <span class="topic-pill">services / networks / volumes</span>
+            <span class="topic-pill">depends_on</span>
+            <span class="topic-pill">restart: unless-stopped</span>
+            <span class="topic-pill">bridge network</span>
+            <span class="topic-pill">service DNS resolution</span>
+            <span class="topic-pill">named volumes</span>
+            <span class="topic-pill">bind mount vs named volume</span>
+            <span class="topic-pill">env_file</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Exercises</div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Write a Compose file with 2 services: a basic nginx and a debian container. From inside the debian container, <code>curl http://nginx</code> using the service name as hostname. Confirm DNS resolution works.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Add a named volume. Write a file into it from one container. Delete that container. Spin a new one — confirm the file is still there. This is the volume persistence mental model.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Simulate a crash: <code>docker kill &lt;container&gt;</code>. Observe it restart automatically due to <code>restart: unless-stopped</code>. Check with <code>docker ps</code>.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section divider -->
+    <div class="section-divider">
+      <span class="divider-label">Service Implementation</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="phase">
+      <div class="phase-dot purple"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 04</div>
+          <div class="phase-title">The Three Services</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">5 days</span>
+          <span class="badge badge-hours">4–5h/day</span>
+          <span class="badge badge-type">Heaviest Phase</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          This is where most of the project time goes. Do them in order: MariaDB first (no dependencies), then WordPress+PHP-FPM (depends on DB), then NGINX (depends on both). One wrong entrypoint here breaks everything downstream.
+        </div>
+        <div class="topics">
+          <div class="topics-label">MariaDB (Day 1–2)</div>
+          <div class="topic-list">
+            <span class="topic-pill">mysql_install_db</span>
+            <span class="topic-pill">init script via entrypoint</span>
+            <span class="topic-pill">CREATE USER / GRANT</span>
+            <span class="topic-pill">mysqld as PID 1</span>
+            <span class="topic-pill">port 3306</span>
+          </div>
+        </div>
+        <div class="topics" style="border-top: 1px solid var(--border);">
+          <div class="topics-label">WordPress + PHP-FPM (Day 3–4)</div>
+          <div class="topic-list">
+            <span class="topic-pill">php-fpm vs php-apache</span>
+            <span class="topic-pill">FastCGI protocol</span>
+            <span class="topic-pill">wp-config.php</span>
+            <span class="topic-pill">WP-CLI for automation</span>
+            <span class="topic-pill">listen on 9000</span>
+            <span class="topic-pill">two DB users required</span>
+          </div>
+        </div>
+        <div class="topics" style="border-top: 1px solid var(--border);">
+          <div class="topics-label">NGINX (Day 5)</div>
+          <div class="topic-list">
+            <span class="topic-pill">server block</span>
+            <span class="topic-pill">fastcgi_pass wordpress:9000</span>
+            <span class="topic-pill">ssl_certificate</span>
+            <span class="topic-pill">TLSv1.2 / TLSv1.3 only</span>
+            <span class="topic-pill">port 443 only</span>
+            <span class="topic-pill">self-signed cert with openssl</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Exercises</div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-text">MariaDB: Write an entrypoint script that initializes the DB on first boot only (check if <code>/var/lib/mysql/mysql</code> exists before running init). Get this wrong and every restart re-initializes and wipes data.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-text">PHP-FPM: After building your WordPress container, <code>exec</code> into it and confirm php-fpm is listening on port 9000 with <code>ss -tlnp</code>. Then from nginx container, telnet to wordpress:9000 to verify reachability.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-text">NGINX: Generate a self-signed cert with openssl (understand what CN and SAN fields mean). Configure nginx to reject TLS 1.0 and 1.1 explicitly. Verify with <code>openssl s_client -connect yourdomain:443 -tls1</code> — should fail.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-text">Full stack test: bring everything up cold (<code>docker compose up --build</code>), access your domain, complete WordPress setup. Then <code>docker compose down</code> and back up — confirm all data persisted via volumes.</span>
+          </div>
+        </div>
+        <div class="warning">
+          <strong>Trap (MariaDB):</strong> The init script must run mysqld in the background, execute your SQL setup, then bring mysqld to foreground as PID 1. Sequence matters — most people get this wrong on first try and lose a full day debugging.
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 5 -->
+    <div class="phase">
+      <div class="phase-dot red"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 05</div>
+          <div class="phase-title">Secrets, Env Vars & Security</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">1 day</span>
+          <span class="badge badge-hours">3–4h/day</span>
+          <span class="badge badge-type">Critical</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          Any credential found in your git history = instant failure. This is not optional. Understand the difference between .env (convenience) and Docker secrets (actual security). The subject requires both patterns.
+        </div>
+        <div class="topics">
+          <div class="topics-label">Topics</div>
+          <div class="topic-list">
+            <span class="topic-pill">.env file structure</span>
+            <span class="topic-pill">env_file in Compose</span>
+            <span class="topic-pill">secrets/ folder</span>
+            <span class="topic-pill">Docker secrets mechanics</span>
+            <span class="topic-pill">/run/secrets/ at runtime</span>
+            <span class="topic-pill">.gitignore for secrets</span>
+            <span class="topic-pill">no passwords in Dockerfiles</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Exercises</div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Audit your Dockerfiles and Compose file: grep for any hardcoded password strings. There should be zero. If you find one, you already failed that criterion.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Implement Docker secrets: put DB password in <code>secrets/db_password.txt</code>. Read it in your entrypoint script via <code>cat /run/secrets/db_password</code>. Confirm the secret is not visible in <code>docker inspect</code> env vars.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">Run <code>git log --all -p | grep -i password</code> on your repo. If anything shows up, you need to purge history with <code>git filter-branch</code> or BFG. Do this before first push.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 6 -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 06</div>
+          <div class="phase-title">Documentation</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">2 days</span>
+          <span class="badge badge-hours">3h/day</span>
+          <span class="badge badge-type">Writing</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          v5.2 of the subject requires three separate files. Most guides don't mention this. Write them while the project is still fresh — not after. The four comparisons in the README are also evaluation material.
+        </div>
+        <div class="topics">
+          <div class="topics-label">Required Files</div>
+          <div class="topic-list">
+            <span class="topic-pill">README.md</span>
+            <span class="topic-pill">USER_DOC.md</span>
+            <span class="topic-pill">DEV_DOC.md</span>
+          </div>
+        </div>
+        <div class="topics" style="border-top: 1px solid var(--border);">
+          <div class="topics-label">Four Required Comparisons in README</div>
+          <div class="topic-list">
+            <span class="topic-pill">VMs vs Docker</span>
+            <span class="topic-pill">Secrets vs Env Vars</span>
+            <span class="topic-pill">Docker Network vs Host Network</span>
+            <span class="topic-pill">Named Volumes vs Bind Mounts</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">What each file needs</div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">USER_DOC.md: How to start/stop the project, access the site and admin panel, locate credentials, check services are running.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">DEV_DOC.md: Setup from scratch, build + launch via Makefile and Compose, container/volume management commands, where data persists.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow">→</span>
+            <span class="ex-text">README must also describe AI usage: which tasks, which parts of the project. Be honest — vague answers get questioned.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 7 -->
+    <div class="phase">
+      <div class="phase-dot orange"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Phase 07</div>
+          <div class="phase-title">Testing & Hardening</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">2 days</span>
+          <span class="badge badge-hours">4h/day</span>
+          <span class="badge badge-type">Validation</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          You are not done when it runs once. You're done when it survives destruction and still works perfectly. Evaluators rebuild from scratch. They kill containers. They ask questions you didn't prepare for.
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Test Checklist</div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Cold build: <code>docker compose down -v && docker system prune -af && docker compose up --build</code>. Full stack must come up clean with zero manual intervention.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Kill the DB container mid-operation. Verify it restarts. Verify WordPress data wasn't corrupted. Verify the admin panel still works.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Confirm port 80 is NOT accessible — only 443. Use <code>curl http://yourdomain</code> — should fail or get refused.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Verify domain name resolves: <code>cat /etc/hosts</code> should have your login.42.fr entry pointing to your VM's IP.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text">Evaluator question prep: "Why port 9000?" "What happens if MariaDB crashes?" "Where does WordPress data actually live on disk?" "What does exec do in your entrypoint?" Answer all of these out loud before evaluation.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bonus section divider -->
+    <div class="section-divider">
+      <span class="divider-label">Bonus — only after mandatory is perfect</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Bonus Phase -->
+    <div class="phase">
+      <div class="phase-dot bonus"></div>
+      <div class="phase-header">
+        <div class="phase-title-group">
+          <div class="phase-num">Bonus</div>
+          <div class="phase-title">Extended Services</div>
+        </div>
+        <div class="phase-meta">
+          <span class="badge badge-days">3–4 days</span>
+          <span class="badge badge-hours">3–4h/day</span>
+          <span class="badge badge-bonus">Optional</span>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-desc">
+          Each bonus is its own Dockerfile + container. Do them in this order — Redis is the most valuable to understand, static site is the fastest win, Adminer is trivial, FTP is the annoying one.
+        </div>
+        <div class="topics">
+          <div class="topics-label">Bonus Items</div>
+          <div class="topic-list">
+            <span class="topic-pill">Redis cache (WP object cache)</span>
+            <span class="topic-pill">Static site (not PHP)</span>
+            <span class="topic-pill">Adminer (DB UI)</span>
+            <span class="topic-pill">FTP server → WP volume</span>
+            <span class="topic-pill">Custom service (justify it)</span>
+          </div>
+        </div>
+        <div class="exercises">
+          <div class="exercises-label">Notes per bonus</div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow gold">→</span>
+            <span class="ex-text">Redis: Install the <code>redis-cache</code> WP plugin via WP-CLI in your WordPress entrypoint. Set <code>WP_REDIS_HOST</code> env var. Understand what object caching actually does — evaluator will ask.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow gold">→</span>
+            <span class="ex-text">Static site: The easiest bonus. Serve it via nginx on a different port (e.g. 8080). Can be your portfolio. Just don't use PHP.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow gold">→</span>
+            <span class="ex-text">Adminer: Single PHP file, tiny image. Serve on port 8888. Connects to your MariaDB. Barely any config needed — fastest bonus to implement.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow gold">→</span>
+            <span class="ex-text">FTP: Use vsftpd. Point it to your WordPress named volume mount path. Test by connecting with an FTP client and listing files. Annoying to configure passive mode correctly — read the vsftpd.conf docs carefully.</span>
+          </div>
+        </div>
+        <div class="warning">
+          <strong>Warning:</strong> Bonus is evaluated only if mandatory is 100% complete and working with zero malfunctions. Don't touch bonus until every mandatory test passes cleanly.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="summary-card">
+      <div class="summary-title">// Project Summary</div>
+      <div class="summary-grid">
+        <div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 00 — Linux processes</span>
+            <span class="summary-val">2 days × 3-4h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 01 — Docker concepts</span>
+            <span class="summary-val">2 days × 3-4h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 02 — Dockerfile</span>
+            <span class="summary-val">3 days × 4h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 03 — Compose + network</span>
+            <span class="summary-val">2 days × 3-4h</span>
+          </div>
+        </div>
+        <div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 04 — Three services</span>
+            <span class="summary-val">5 days × 4-5h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 05 — Security</span>
+            <span class="summary-val">1 day × 3-4h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 06 — Documentation</span>
+            <span class="summary-val">2 days × 3h</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Phase 07 — Testing</span>
+            <span class="summary-val">2 days × 4h</span>
+          </div>
+        </div>
+      </div>
+      <div class="summary-total">
+        <div>
+          <div class="summary-total-label">Total Mandatory</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;">19 days · ~75 hours · 3.5 weeks at 4h/day</div>
+        </div>
+        <div class="summary-total-val">19d</div>
+      </div>
+      <div style="margin-top:12px; padding:16px 20px; background:rgba(255,215,0,0.04); border:1px solid rgba(255,215,0,0.12); border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);">Total with Bonus</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;">Add ~3-4 days after mandatory is airtight</div>
+        </div>
+        <div style="font-size:22px;font-weight:800;color:gold;letter-spacing:-1px;">~23d</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
