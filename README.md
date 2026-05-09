@@ -1,6 +1,6 @@
 # Inception Roadmap
 
-Study roadmap for the 42 Network Inception project.
+Study roadmap for the 1337 Coding School Inception project.
 
 🌐 Live Demo:
 [https://redadaghouj.github.io/INCEPTION_ROADMAP/](https://redadaghouj.github.io/INCEPTION_ROADMAP/)
