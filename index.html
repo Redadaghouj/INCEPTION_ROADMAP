@@ -457,6 +457,8 @@
     .phase { padding-left: 44px; }
     .section-divider { padding-left: 44px; }
     .summary { padding-left: 44px; }
+    .bonus-grid { grid-template-columns: 1fr !important; }
+    .bonus-grid > div[style*="grid-column"] { grid-column: span 1 !important; }
   }
 </style>
 </head>
@@ -935,81 +937,99 @@
         <div class="phase-desc">
           You are not done when it runs once. You're done when it survives destruction and still works perfectly. The evaluator follows a fixed script — know every step of it before they arrive.
         </div>
-        <div class="warning">
-          <strong>Evaluator's first command (run it yourself first):</strong> Before touching your repo, the evaluator wipes the entire Docker environment:
-          <br><br>
-          <code>docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null</code>
-          <br><br>
-          Then they run your <code>make</code>. Your project must build and launch from absolute zero — no cached images, no existing volumes, no dangling networks. Run this yourself before evaluation and time the full cold build.
-        </div>
-        <div class="exercises">
-          <div class="exercises-label">Eval Script — run through each step yourself</div>
 
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> Image names: <code>docker images</code> — each image must be named exactly like its service in <code>docker-compose.yml</code> (e.g., service <code>nginx</code> → image <code>nginx</code>, not <code>inception-nginx</code> or <code>myproject_nginx</code>). This is checked explicitly.</span>
+        <!-- Wipe command -->
+        <div class="topics">
+          <div class="topics-label" style="color:var(--danger);">⚠ Evaluator's first command — run this yourself first</div>
+          <div style="background:var(--surface2);border:1px solid rgba(240,90,106,0.2);border-radius:8px;padding:14px 16px;margin-top:8px;">
+            <code style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#f08090;line-height:1.8;display:block;word-break:break-all;">docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null</code>
           </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> Container status: <code>docker compose ps</code> — all three containers must show as running with no restarts or exits. Know what healthy output looks like. If anything shows "Exit" or "Restarting", you fail here.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> Port 80 blocked: <code>curl http://&lt;login&gt;.42.fr</code> must fail or be refused. Port 443 via <code>https://&lt;login&gt;.42.fr</code> must serve your WordPress site (not the installation page — WordPress must be pre-configured by your entrypoint).</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> TLS verification: Evaluator will verify TLS v1.2 or v1.3 is used. Self-signed cert warning is acceptable. Know how to demonstrate it: <code>openssl s_client -connect &lt;login&gt;.42.fr:443 -tls1_2</code> should succeed; <code>-tls1</code> and <code>-tls1_1</code> should fail.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> Volume path check: <code>docker volume ls</code> then <code>docker volume inspect &lt;volume_name&gt;</code>. The evaluator looks for <code>/home/&lt;login&gt;/data/</code> in the output. Both volumes (DB and WP files) must show this path. Test this command and know what the output looks like.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> WordPress user test: Evaluator logs in as the non-admin user and posts a comment. Make sure your second WP user is configured with comment permissions and that you know their credentials (stored in <code>secrets/credentials.txt</code>).</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> Admin dashboard test: Evaluator logs in as admin, edits a page, and verifies the change appears on the site. The admin username must not contain "admin" in any form. Have your admin credentials ready. Know how to navigate to Pages → Edit in the WP dashboard.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step]</strong> DB login demo: Evaluator asks you to log into the database. Know this command cold: <code>docker exec -it &lt;mariadb_container&gt; mysql -u &lt;db_user&gt; -p &lt;db_name&gt;</code>. Then show the tables are not empty: <code>SHOW TABLES;</code> and <code>SELECT user_login FROM wp_users;</code>.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Eval step — Persistence]</strong> The evaluator reboots the VM. After reboot, they run <code>make</code> again and verify your WordPress data and configuration survived — including the page edit they made. This is not the same as <code>docker compose down/up</code>. The named volumes must persist across a full VM restart. Test this yourself: reboot your VM, relaunch, confirm the WP edit is still there.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Entrypoint script audit]</strong> If your ENTRYPOINT calls a shell script (e.g. <code>ENTRYPOINT ["sh", "entrypoint.sh"]</code>), the evaluator will read that script. It must not run any program in the background — <code>nginx &amp; bash</code> or <code>mysqld &amp; sleep</code> are banned even inside scripts. Your script must end with <code>exec "$@"</code> or directly exec the service.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Credential audit]</strong> <code>docker inspect &lt;container&gt; | grep -i password</code> — must return nothing. Check all three containers. Also run <code>git log --all -p | grep -i password</code> one final time.</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Question prep — say these out loud]</strong> "How does Docker differ from a VM?" / "How does docker compose work?" / "Why do you use a custom network instead of host?" / "Where does the WordPress data actually live on disk?" / "What does exec do in your entrypoint?" / "Why TLSv1.2/1.3 only?" / "What happens if MariaDB crashes mid-request?" / "Walk me through your MariaDB init sequence."</span>
-          </div>
-
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text"><strong>[Live modification drill]</strong> The eval sheet warns the evaluator may request a small live code change. Practice this: pick something simple (change the nginx server_name, add a custom HTTP header, update the WP site title via WP-CLI), implement it in under 5 minutes, rebuild and verify. If you can't do this under mild pressure, you are not ready.</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:10px;">
+            Then they run <code>make</code>. No cached images, no volumes, no dangling networks. Run this yourself before eval and time the cold build.
           </div>
         </div>
+
+        <!-- Infrastructure checks -->
+        <div class="exercises" style="border-top:1px solid var(--border);">
+          <div class="exercises-label" style="color:var(--accent2);">Infrastructure Checks</div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text"><code>docker images</code> — each image name must match its service name in <code>docker-compose.yml</code> exactly. <code>inception-nginx</code> or <code>myproject_nginx</code> will fail. The eval sheet checks this explicitly.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text"><code>docker compose ps</code> — all three containers must show as running. Any "Exit" or "Restarting" state = fail. Know what healthy output looks like before the evaluator runs it.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text"><code>docker network ls</code> — your custom network must be visible. The evaluator confirms it, then asks you to explain how Docker networking works.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text"><code>docker volume ls</code> then <code>docker volume inspect &lt;name&gt;</code> — the evaluator looks for <code>/home/&lt;login&gt;/data/</code> in the Mountpoint. Do this for both volumes and confirm the path appears.</span>
+          </div>
+        </div>
+
+        <!-- Access checks -->
+        <div class="exercises" style="border-top:1px solid var(--border);">
+          <div class="exercises-label" style="color:var(--accent2);">Access & TLS Checks</div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text"><code>curl http://&lt;login&gt;.42.fr</code> must be refused. <code>https://&lt;login&gt;.42.fr</code> must serve the WordPress site — not the installation wizard. WordPress must be fully configured by your entrypoint, not manually.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text">TLS: <code>openssl s_client -connect &lt;login&gt;.42.fr:443 -tls1_2</code> must succeed. <code>-tls1</code> and <code>-tls1_1</code> must fail. Self-signed cert warning is fine — the evaluator expects it.</span>
+          </div>
+        </div>
+
+        <!-- WordPress checks -->
+        <div class="exercises" style="border-top:1px solid var(--border);">
+          <div class="exercises-label" style="color:var(--accent2);">WordPress Functional Checks</div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text">Log in as the non-admin user → post a comment. The evaluator does this. Ensure the second user has comment permissions and credentials are in <code>secrets/credentials.txt</code>.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text">Log in as admin → edit a page → verify the change shows on the live site. Admin username must not contain "admin" in any form. Know the path: WP Admin → Pages → Edit → Update.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow orange">→</span>
+            <span class="ex-text">DB login demo — know this cold: <code>docker exec -it &lt;mariadb&gt; mysql -u &lt;user&gt; -p &lt;dbname&gt;</code>, then <code>SHOW TABLES;</code> and <code>SELECT user_login FROM wp_users;</code>. The evaluator asks you to demonstrate this.</span>
+          </div>
+        </div>
+
+        <!-- Persistence -->
+        <div class="exercises" style="border-top:1px solid var(--border);">
+          <div class="exercises-label" style="color:var(--danger);">Persistence Test — VM Reboot</div>
+          <div class="exercise-item">
+            <span class="ex-arrow" style="color:var(--danger);">→</span>
+            <span class="ex-text">The evaluator reboots the virtual machine. After reboot, they run <code>make</code> again and verify the WP page edit they made is still there. This is not <code>docker compose down/up</code> — it's a full VM restart. Test this yourself before eval day.</span>
+          </div>
+        </div>
+
+        <!-- Audit & question prep -->
+        <div class="exercises" style="border-top:1px solid var(--border);">
+          <div class="exercises-label" style="color:var(--accent3);">Audit & Question Prep</div>
+          <div class="exercise-item">
+            <span class="ex-arrow purple">→</span>
+            <span class="ex-text">Entrypoint script audit: if your ENTRYPOINT calls a script, the evaluator reads it. No background processes — <code>nginx &amp; bash</code> or <code>mysqld &amp; sleep</code> are banned even inside scripts. Must end with <code>exec "$@"</code> or directly exec the service.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow purple">→</span>
+            <span class="ex-text">Credential audit: <code>docker inspect &lt;container&gt; | grep -i password</code> on all three containers — must return nothing. Then <code>git log --all -p | grep -i password</code> one last time.</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow purple">→</span>
+            <span class="ex-text">Say these out loud: "How does Docker differ from a VM?" · "How does docker compose work?" · "Why custom network instead of host?" · "Where does WP data live on disk?" · "What does exec do in your entrypoint?" · "Why TLSv1.2/1.3 only?" · "Walk me through your MariaDB init sequence."</span>
+          </div>
+          <div class="exercise-item">
+            <span class="ex-arrow purple">→</span>
+            <span class="ex-text">Live modification drill: the eval sheet warns the evaluator may request a small live change. Practice it — change the nginx server header, update the WP site title via WP-CLI — in under 5 minutes from scratch. If you can't, you are not ready.</span>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1035,40 +1055,43 @@
       </div>
       <div class="phase-card">
         <div class="phase-desc">
-          Each bonus is its own Dockerfile + container. Do them in this order — Redis is the most valuable to understand, static site is the fastest win, Adminer is trivial, FTP is the annoying one.
+          Each bonus is its own Dockerfile + container. Do them in this order — Redis is the most valuable to understand, static site is the fastest win, Adminer is trivial, FTP is the annoying one. The evaluator awards 1 point per working bonus and will ask you to justify your custom service choice.
         </div>
-        <div class="topics">
-          <div class="topics-label">Bonus Items</div>
-          <div class="topic-list">
-            <span class="topic-pill">Redis cache (WP object cache)</span>
-            <span class="topic-pill">Static site (not PHP)</span>
-            <span class="topic-pill">Adminer (DB UI)</span>
-            <span class="topic-pill">FTP server → WP volume</span>
-            <span class="topic-pill">Custom service (justify it)</span>
+
+        <!-- Bonus grid -->
+        <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;border-bottom:1px solid var(--border);">
+
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">01 — Redis</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Install <code>redis-cache</code> WP plugin via WP-CLI in the WordPress entrypoint. Set <code>WP_REDIS_HOST</code> env var. Understand what object caching actually does — evaluator will ask.</div>
           </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">02 — Static Site</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Easiest bonus. Serve via nginx on a different port (e.g. 8080). Can be your portfolio. No PHP allowed. Needs its own Dockerfile.</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">03 — Adminer</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Single PHP file, tiny image. Serve on port 8888. Connects to MariaDB. Barely any config — fastest bonus to ship. Good sanity check for your DB setup too.</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">04 — FTP Server</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Use vsftpd. Point it to the WordPress named volume mount path. Annoying to configure passive mode correctly — read the vsftpd.conf docs carefully before starting.</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid rgba(255,215,0,0.15);border-radius:10px;padding:14px 16px;grid-column:span 2;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">05 — Custom Service (your choice)</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Any service you find useful. You must justify your choice during the defense — have a clear, technical answer ready. Suggestions: Fail2ban, cAdvisor, a monitoring exporter, a mail relay. Pick something you actually understand.</div>
+          </div>
+
         </div>
-        <div class="exercises">
-          <div class="exercises-label">Notes per bonus</div>
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow gold">→</span>
-            <span class="ex-text">Redis: Install the <code>redis-cache</code> WP plugin via WP-CLI in your WordPress entrypoint. Set <code>WP_REDIS_HOST</code> env var. Understand what object caching actually does — evaluator will ask.</span>
-          </div>
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow gold">→</span>
-            <span class="ex-text">Static site: The easiest bonus. Serve it via nginx on a different port (e.g. 8080). Can be your portfolio. Just don't use PHP.</span>
-          </div>
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow gold">→</span>
-            <span class="ex-text">Adminer: Single PHP file, tiny image. Serve on port 8888. Connects to your MariaDB. Barely any config needed — fastest bonus to implement.</span>
-          </div>
-          <div class="exercise-item">
-            <span class="ex-arrow ex-arrow gold">→</span>
-            <span class="ex-text">FTP: Use vsftpd. Point it to your WordPress named volume mount path. Test by connecting with an FTP client and listing files. Annoying to configure passive mode correctly — read the vsftpd.conf docs carefully.</span>
-          </div>
+
+        <div class="warning" style="margin:16px 20px 16px;">
+          <strong>Warning:</strong> Bonus is evaluated only if mandatory is 100% complete with zero malfunctions. If mandatory fails at any point during eval, bonus points are ignored entirely. Don't touch bonus until every mandatory test passes cleanly on a cold build.
         </div>
-        <div class="warning">
-          <strong>Warning:</strong> Bonus is evaluated only if mandatory is 100% complete and working with zero malfunctions. Don't touch bonus until every mandatory test passes cleanly.
-        </div>
+
       </div>
     </div>
 
