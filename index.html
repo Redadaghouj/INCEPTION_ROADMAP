@@ -562,6 +562,9 @@
         <div class="phase-desc">
           Don't touch commands yet. Understand what Docker actually is. Image = filesystem snapshot. Container = isolated process running from that snapshot. Not a VM — no kernel, no boot sequence.
         </div>
+        <div class="warning">
+          <strong>Subject constraint:</strong> You must build from the <strong>penultimate stable version</strong> of Alpine or Debian — not the latest. Check the current stable release, then use the one before it (e.g. if Debian 13 is stable, use Debian 12). The <code>:latest</code> tag is explicitly <strong>forbidden</strong> — always pin an explicit version tag like <code>debian:bookworm</code> or <code>alpine:3.19</code>.
+        </div>
         <div class="topics">
           <div class="topics-label">Topics</div>
           <div class="topic-list">
@@ -578,7 +581,7 @@
           <div class="exercises-label">Exercises</div>
           <div class="exercise-item">
             <span class="ex-arrow">→</span>
-            <span class="ex-text">Pull <code>debian:bookworm-slim</code>. Run it interactively. Install <code>curl</code> inside. Exit. Delete the container. Run again — <code>curl</code> is gone. Understand why.</span>
+            <span class="ex-text">Pull <code>debian:bookworm</code> (the penultimate stable at time of writing). Run it interactively. Install <code>curl</code> inside. Exit. Delete the container. Run again — <code>curl</code> is gone. Understand why.</span>
           </div>
           <div class="exercise-item">
             <span class="ex-arrow">→</span>
@@ -641,6 +644,9 @@
         <div class="warning">
           <strong>Trap:</strong> Shell form of CMD/ENTRYPOINT (e.g., <code>CMD "nginx -g..."</code>) wraps the command in <code>/bin/sh -c</code>, meaning nginx is NOT PID 1 — sh is. Signals won't reach nginx. Always use exec form: <code>CMD ["nginx", "-g", "daemon off;"]</code>
         </div>
+        <div class="warning" style="margin-top:8px;">
+          <strong>Banned hacks (explicit subject prohibition):</strong> Your containers must NOT be started with an infinite loop or a placeholder command. The following are explicitly forbidden as entrypoints or CMD: <code>tail -f</code>, <code>bash</code>, <code>sleep infinity</code>, <code>while true</code>. If you're using any of these to "keep a container alive," you don't understand PID 1 yet — go back and fix it.
+        </div>
       </div>
     </div>
 
@@ -662,6 +668,18 @@
         <div class="phase-desc">
           Compose is just orchestration YAML. But the network and volumes sections are what the evaluator will grill you on. Understand exactly why <code>wordpress</code> resolves to the WordPress container's IP inside the Docker network.
         </div>
+        <div class="warning">
+          <strong>Hard bans in Compose:</strong> <code>network: host</code>, <code>--link</code>, and <code>links:</code> are all forbidden. You must define a custom bridge network and use service names for DNS. The <code>network</code> key must be explicitly present in your <code>docker-compose.yml</code> — an implicit default network is not acceptable.
+        </div>
+        <div class="warning" style="margin-top:8px;">
+          <strong>Volume path requirement:</strong> Both named volumes must store their data under <code>/home/&lt;your_login&gt;/data</code> on the host machine. You configure this in the Compose <code>driver_opts</code>. The evaluator will check this path exists and contains your data.
+        </div>
+        <div class="warning" style="margin-top:8px;">
+          <strong>Makefile is mandatory:</strong> A <code>Makefile</code> at the repo root must wrap your entire workflow. At minimum it must call <code>docker compose up --build</code> (and down/clean targets). The evaluator runs <code>make</code> — if it doesn't build and launch everything automatically, you fail before they even look at your containers.
+        </div>
+        <div class="warning" style="margin-top:8px;">
+          <strong>VM + domain setup (do this early, not at test time):</strong> The project runs on a VM. Your domain <code>&lt;login&gt;.42.fr</code> must resolve to your VM's local IP. Add the entry to <code>/etc/hosts</code> on the VM: <code>127.0.0.1 &lt;login&gt;.42.fr</code>. Also confirm your VM's shared folders or SSH are set up so you can work comfortably. Students who skip this until Phase 07 lose hours at the worst moment.
+        </div>
         <div class="topics">
           <div class="topics-label">Topics</div>
           <div class="topic-list">
@@ -673,6 +691,7 @@
             <span class="topic-pill">named volumes</span>
             <span class="topic-pill">bind mount vs named volume</span>
             <span class="topic-pill">env_file</span>
+            <span class="topic-pill">image name = service name</span>
           </div>
         </div>
         <div class="exercises">
@@ -738,6 +757,9 @@
             <span class="topic-pill">two DB users required</span>
           </div>
         </div>
+        <div class="warning" style="margin: 12px 20px;">
+          <strong>Admin username restriction:</strong> The WordPress administrator account's username <strong>cannot contain</strong> "admin", "Admin", "administrator", or "Administrator" in any form — including <code>admin-123</code>, <code>wp_admin</code>, etc. The evaluator will check this in the DB. Set it to something like your login name via WP-CLI during container init.
+        </div>
         <div class="topics" style="border-top: 1px solid var(--border);">
           <div class="topics-label">NGINX (Day 5)</div>
           <div class="topic-list">
@@ -792,6 +814,22 @@
         <div class="phase-desc">
           Any credential found in your git history = instant failure. This is not optional. Understand the difference between .env (convenience) and Docker secrets (actual security). The subject requires both patterns.
         </div>
+        <div class="warning">
+          <strong>Required repo structure:</strong> Your project must follow this layout exactly — evaluators check it:
+          <br><br>
+          <code>Makefile</code> (root)<br>
+          <code>secrets/credentials.txt</code> — WordPress admin credentials<br>
+          <code>secrets/db_password.txt</code><br>
+          <code>secrets/db_root_password.txt</code><br>
+          <code>srcs/docker-compose.yml</code><br>
+          <code>srcs/.env</code><br>
+          <code>srcs/requirements/nginx/</code> (Dockerfile + conf + tools)<br>
+          <code>srcs/requirements/wordpress/</code><br>
+          <code>srcs/requirements/mariadb/</code><br>
+          <br>
+          The <code>secrets/</code> folder must be in your <code>.gitignore</code>. All three secret files must exist locally but never appear in git history.
+        </div>
+        </div>
         <div class="topics">
           <div class="topics-label">Topics</div>
           <div class="topic-list">
@@ -838,7 +876,11 @@
       </div>
       <div class="phase-card">
         <div class="phase-desc">
-          v5.2 of the subject requires three separate files. Most guides don't mention this. Write them while the project is still fresh — not after. The four comparisons in the README are also evaluation material.
+          The subject requires three separate documentation files. Most guides don't mention this. Write them while the project is still fresh — not after. The four comparisons in the README are evaluation material and evaluators specifically ask about them.
+        </div>
+        <div class="warning">
+          <strong>README first line (exact requirement):</strong> The very first line of your README must be italicized and read: <em>This project has been created as part of the 42 curriculum by &lt;your_login&gt;.</em> — this is checked. A missing or wrong first line is a documentation failure.
+        </div>
         </div>
         <div class="topics">
           <div class="topics-label">Required Files</div>
@@ -891,29 +933,81 @@
       </div>
       <div class="phase-card">
         <div class="phase-desc">
-          You are not done when it runs once. You're done when it survives destruction and still works perfectly. Evaluators rebuild from scratch. They kill containers. They ask questions you didn't prepare for.
+          You are not done when it runs once. You're done when it survives destruction and still works perfectly. The evaluator follows a fixed script — know every step of it before they arrive.
+        </div>
+        <div class="warning">
+          <strong>Evaluator's first command (run it yourself first):</strong> Before touching your repo, the evaluator wipes the entire Docker environment:
+          <br><br>
+          <code>docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null</code>
+          <br><br>
+          Then they run your <code>make</code>. Your project must build and launch from absolute zero — no cached images, no existing volumes, no dangling networks. Run this yourself before evaluation and time the full cold build.
         </div>
         <div class="exercises">
-          <div class="exercises-label">Test Checklist</div>
+          <div class="exercises-label">Eval Script — run through each step yourself</div>
+
           <div class="exercise-item">
             <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text">Cold build: <code>docker compose down -v && docker system prune -af && docker compose up --build</code>. Full stack must come up clean with zero manual intervention.</span>
+            <span class="ex-text"><strong>[Eval step]</strong> Image names: <code>docker images</code> — each image must be named exactly like its service in <code>docker-compose.yml</code> (e.g., service <code>nginx</code> → image <code>nginx</code>, not <code>inception-nginx</code> or <code>myproject_nginx</code>). This is checked explicitly.</span>
           </div>
+
           <div class="exercise-item">
             <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text">Kill the DB container mid-operation. Verify it restarts. Verify WordPress data wasn't corrupted. Verify the admin panel still works.</span>
+            <span class="ex-text"><strong>[Eval step]</strong> Container status: <code>docker compose ps</code> — all three containers must show as running with no restarts or exits. Know what healthy output looks like. If anything shows "Exit" or "Restarting", you fail here.</span>
           </div>
+
           <div class="exercise-item">
             <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text">Confirm port 80 is NOT accessible — only 443. Use <code>curl http://yourdomain</code> — should fail or get refused.</span>
+            <span class="ex-text"><strong>[Eval step]</strong> Port 80 blocked: <code>curl http://&lt;login&gt;.42.fr</code> must fail or be refused. Port 443 via <code>https://&lt;login&gt;.42.fr</code> must serve your WordPress site (not the installation page — WordPress must be pre-configured by your entrypoint).</span>
           </div>
+
           <div class="exercise-item">
             <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text">Verify domain name resolves: <code>cat /etc/hosts</code> should have your login.42.fr entry pointing to your VM's IP.</span>
+            <span class="ex-text"><strong>[Eval step]</strong> TLS verification: Evaluator will verify TLS v1.2 or v1.3 is used. Self-signed cert warning is acceptable. Know how to demonstrate it: <code>openssl s_client -connect &lt;login&gt;.42.fr:443 -tls1_2</code> should succeed; <code>-tls1</code> and <code>-tls1_1</code> should fail.</span>
           </div>
+
           <div class="exercise-item">
             <span class="ex-arrow ex-arrow orange">→</span>
-            <span class="ex-text">Evaluator question prep: "Why port 9000?" "What happens if MariaDB crashes?" "Where does WordPress data actually live on disk?" "What does exec do in your entrypoint?" Answer all of these out loud before evaluation.</span>
+            <span class="ex-text"><strong>[Eval step]</strong> Volume path check: <code>docker volume ls</code> then <code>docker volume inspect &lt;volume_name&gt;</code>. The evaluator looks for <code>/home/&lt;login&gt;/data/</code> in the output. Both volumes (DB and WP files) must show this path. Test this command and know what the output looks like.</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Eval step]</strong> WordPress user test: Evaluator logs in as the non-admin user and posts a comment. Make sure your second WP user is configured with comment permissions and that you know their credentials (stored in <code>secrets/credentials.txt</code>).</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Eval step]</strong> Admin dashboard test: Evaluator logs in as admin, edits a page, and verifies the change appears on the site. The admin username must not contain "admin" in any form. Have your admin credentials ready. Know how to navigate to Pages → Edit in the WP dashboard.</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Eval step]</strong> DB login demo: Evaluator asks you to log into the database. Know this command cold: <code>docker exec -it &lt;mariadb_container&gt; mysql -u &lt;db_user&gt; -p &lt;db_name&gt;</code>. Then show the tables are not empty: <code>SHOW TABLES;</code> and <code>SELECT user_login FROM wp_users;</code>.</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Eval step — Persistence]</strong> The evaluator reboots the VM. After reboot, they run <code>make</code> again and verify your WordPress data and configuration survived — including the page edit they made. This is not the same as <code>docker compose down/up</code>. The named volumes must persist across a full VM restart. Test this yourself: reboot your VM, relaunch, confirm the WP edit is still there.</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Entrypoint script audit]</strong> If your ENTRYPOINT calls a shell script (e.g. <code>ENTRYPOINT ["sh", "entrypoint.sh"]</code>), the evaluator will read that script. It must not run any program in the background — <code>nginx &amp; bash</code> or <code>mysqld &amp; sleep</code> are banned even inside scripts. Your script must end with <code>exec "$@"</code> or directly exec the service.</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Credential audit]</strong> <code>docker inspect &lt;container&gt; | grep -i password</code> — must return nothing. Check all three containers. Also run <code>git log --all -p | grep -i password</code> one final time.</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Question prep — say these out loud]</strong> "How does Docker differ from a VM?" / "How does docker compose work?" / "Why do you use a custom network instead of host?" / "Where does the WordPress data actually live on disk?" / "What does exec do in your entrypoint?" / "Why TLSv1.2/1.3 only?" / "What happens if MariaDB crashes mid-request?" / "Walk me through your MariaDB init sequence."</span>
+          </div>
+
+          <div class="exercise-item">
+            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-text"><strong>[Live modification drill]</strong> The eval sheet warns the evaluator may request a small live code change. Practice this: pick something simple (change the nginx server_name, add a custom HTTP header, update the WP site title via WP-CLI), implement it in under 5 minutes, rebuild and verify. If you can't do this under mild pressure, you are not ready.</span>
           </div>
         </div>
       </div>
