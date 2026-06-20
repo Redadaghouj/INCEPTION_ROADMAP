@@ -149,6 +149,9 @@
     margin-bottom: 48px;
     padding-left: 60px;
     position: relative;
+    /* FIX: ensure phase never overflows its container */
+    max-width: 100%;
+    min-width: 0;
   }
 
   .phase-dot {
@@ -253,6 +256,9 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
+    /* FIX: constrain card to phase width */
+    width: 100%;
+    min-width: 0;
   }
 
   .phase-desc {
@@ -262,6 +268,8 @@
     color: var(--muted);
     line-height: 1.7;
     border-bottom: 1px solid var(--border);
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .topics {
@@ -333,6 +341,16 @@
     font-size: 11px;
     color: #a0a8b8;
     line-height: 1.6;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0;
+  }
+
+  /* FIX: inline code must wrap, never stretch layout */
+  code {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
   }
 
   /* Warning block */
@@ -347,6 +365,8 @@
     font-size: 11px;
     color: #f08090;
     line-height: 1.6;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .warning strong { color: var(--danger); }
@@ -451,14 +471,93 @@
     letter-spacing: -1px;
   }
 
+  /* FIX: bonus grid class to replace inline styles */
+  .bonus-grid {
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bonus-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    min-width: 0;
+  }
+
+  .bonus-card.span2 {
+    grid-column: span 2;
+    border-color: rgba(255,215,0,0.15);
+  }
+
+  .bonus-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: gold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .bonus-card-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #a0a8b8;
+    line-height: 1.6;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* FIX: wipe command block */
+  .wipe-block {
+    background: var(--surface2);
+    border: 1px solid rgba(240,90,106,0.2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+
+  .wipe-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: #f08090;
+    line-height: 1.8;
+    display: block;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+
+  .wipe-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 10px;
+  }
+
+  /* FIX: inline-style divs in phase7 and summary */
+  .inner-block {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   @media (max-width: 600px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .summary-grid { grid-template-columns: 1fr; }
     .phase { padding-left: 44px; }
     .section-divider { padding-left: 44px; }
     .summary { padding-left: 44px; }
-    .bonus-grid { grid-template-columns: 1fr !important; }
-    .bonus-grid > div[style*="grid-column"] { grid-column: span 1 !important; }
+    .bonus-grid { grid-template-columns: 1fr; }
+    .bonus-card.span2 { grid-column: span 1; }
   }
 </style>
 </head>
@@ -631,15 +730,15 @@
         <div class="exercises">
           <div class="exercises-label">Exercises</div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-arrow orange">→</span>
             <span class="ex-text">Day 1: Write a Dockerfile for a plain nginx from <code>debian:bookworm-slim</code>. No config yet — just install nginx and make it start as PID 1. Verify with <code>docker exec &lt;id&gt; ps aux</code> that nginx is PID 1 inside.</span>
           </div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-arrow orange">→</span>
             <span class="ex-text">Day 2: Add an entrypoint shell script. The script does some setup, then <code>exec "$@"</code> to hand control to nginx. Understand why <code>exec</code> is critical here (signal forwarding, PID 1 replacement).</span>
           </div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-arrow orange">→</span>
             <span class="ex-text">Day 3: Intentionally break the Dockerfile 3 different ways (wrong CMD form, missing exec, wrong base). Debug each. Knowing how it breaks teaches you more than getting it right the first time.</span>
           </div>
         </div>
@@ -699,15 +798,15 @@
         <div class="exercises">
           <div class="exercises-label">Exercises</div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-arrow orange">→</span>
             <span class="ex-text">Write a Compose file with 2 services: a basic nginx and a debian container. From inside the debian container, <code>curl http://nginx</code> using the service name as hostname. Confirm DNS resolution works.</span>
           </div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-arrow orange">→</span>
             <span class="ex-text">Add a named volume. Write a file into it from one container. Delete that container. Spin a new one — confirm the file is still there. This is the volume persistence mental model.</span>
           </div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow orange">→</span>
+            <span class="ex-arrow orange">→</span>
             <span class="ex-text">Simulate a crash: <code>docker kill &lt;container&gt;</code>. Observe it restart automatically due to <code>restart: unless-stopped</code>. Check with <code>docker ps</code>.</span>
           </div>
         </div>
@@ -776,19 +875,19 @@
         <div class="exercises">
           <div class="exercises-label">Exercises</div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-arrow purple">→</span>
             <span class="ex-text">MariaDB: Write an entrypoint script that initializes the DB on first boot only (check if <code>/var/lib/mysql/mysql</code> exists before running init). Get this wrong and every restart re-initializes and wipes data.</span>
           </div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-arrow purple">→</span>
             <span class="ex-text">PHP-FPM: After building your WordPress container, <code>exec</code> into it and confirm php-fpm is listening on port 9000 with <code>ss -tlnp</code>. Then from nginx container, telnet to wordpress:9000 to verify reachability.</span>
           </div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-arrow purple">→</span>
             <span class="ex-text">NGINX: Generate a self-signed cert with openssl (understand what CN and SAN fields mean). Configure nginx to reject TLS 1.0 and 1.1 explicitly. Verify with <code>openssl s_client -connect yourdomain:443 -tls1</code> — should fail.</span>
           </div>
           <div class="exercise-item">
-            <span class="ex-arrow ex-arrow purple">→</span>
+            <span class="ex-arrow purple">→</span>
             <span class="ex-text">Full stack test: bring everything up cold (<code>docker compose up --build</code>), access your domain, complete WordPress setup. Then <code>docker compose down</code> and back up — confirm all data persisted via volumes.</span>
           </div>
         </div>
@@ -830,7 +929,6 @@
           <code>srcs/requirements/mariadb/</code><br>
           <br>
           The <code>secrets/</code> folder must be in your <code>.gitignore</code>. All three secret files must exist locally but never appear in git history.
-        </div>
         </div>
         <div class="topics">
           <div class="topics-label">Topics</div>
@@ -882,7 +980,6 @@
         </div>
         <div class="warning">
           <strong>README first line (exact requirement):</strong> The very first line of your README must be italicized and read: <em>This project has been created as part of the 42 curriculum by &lt;your_login&gt;.</em> — this is checked. A missing or wrong first line is a documentation failure.
-        </div>
         </div>
         <div class="topics">
           <div class="topics-label">Required Files</div>
@@ -938,13 +1035,13 @@
           You are not done when it runs once. You're done when it survives destruction and still works perfectly. The evaluator follows a fixed script — know every step of it before they arrive.
         </div>
 
-        <!-- Wipe command -->
+        <!-- Wipe command — FIX: use proper classes instead of inline styles -->
         <div class="topics">
           <div class="topics-label" style="color:var(--danger);">⚠ Evaluator's first command — run this yourself first</div>
-          <div style="background:var(--surface2);border:1px solid rgba(240,90,106,0.2);border-radius:8px;padding:14px 16px;margin-top:8px;">
-            <code style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#f08090;line-height:1.8;display:block;word-break:break-all;">docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null</code>
+          <div class="wipe-block">
+            <code class="wipe-code">docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null</code>
           </div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:10px;">
+          <div class="wipe-note">
             Then they run <code>make</code>. No cached images, no volumes, no dangling networks. Run this yourself before eval and time the cold build.
           </div>
         </div>
@@ -1058,34 +1155,32 @@
           Each bonus is its own Dockerfile + container. Do them in this order — Redis is the most valuable to understand, static site is the fastest win, Adminer is trivial, FTP is the annoying one. The evaluator awards 1 point per working bonus and will ask you to justify your custom service choice.
         </div>
 
-        <!-- Bonus grid -->
-        <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;border-bottom:1px solid var(--border);">
-
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">01 — Redis</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Install <code>redis-cache</code> WP plugin via WP-CLI in the WordPress entrypoint. Set <code>WP_REDIS_HOST</code> env var. Understand what object caching actually does — evaluator will ask.</div>
+        <!-- Bonus grid — FIX: use .bonus-grid class instead of inline styles -->
+        <div class="bonus-grid">
+          <div class="bonus-card">
+            <div class="bonus-card-label">01 — Redis</div>
+            <div class="bonus-card-text">Install <code>redis-cache</code> WP plugin via WP-CLI in the WordPress entrypoint. Set <code>WP_REDIS_HOST</code> env var. Understand what object caching actually does — evaluator will ask.</div>
           </div>
 
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">02 — Static Site</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Easiest bonus. Serve via nginx on a different port (e.g. 8080). Can be your portfolio. No PHP allowed. Needs its own Dockerfile.</div>
+          <div class="bonus-card">
+            <div class="bonus-card-label">02 — Static Site</div>
+            <div class="bonus-card-text">Easiest bonus. Serve via nginx on a different port (e.g. 8080). Can be your portfolio. No PHP allowed. Needs its own Dockerfile.</div>
           </div>
 
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">03 — Adminer</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Single PHP file, tiny image. Serve on port 8888. Connects to MariaDB. Barely any config — fastest bonus to ship. Good sanity check for your DB setup too.</div>
+          <div class="bonus-card">
+            <div class="bonus-card-label">03 — Adminer</div>
+            <div class="bonus-card-text">Single PHP file, tiny image. Serve on port 8888. Connects to MariaDB. Barely any config — fastest bonus to ship. Good sanity check for your DB setup too.</div>
           </div>
 
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">04 — FTP Server</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Use vsftpd. Point it to the WordPress named volume mount path. Annoying to configure passive mode correctly — read the vsftpd.conf docs carefully before starting.</div>
+          <div class="bonus-card">
+            <div class="bonus-card-label">04 — FTP Server</div>
+            <div class="bonus-card-text">Use vsftpd. Point it to the WordPress named volume mount path. Annoying to configure passive mode correctly — read the vsftpd.conf docs carefully before starting.</div>
           </div>
 
-          <div style="background:var(--surface2);border:1px solid rgba(255,215,0,0.15);border-radius:10px;padding:14px 16px;grid-column:span 2;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:gold;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">05 — Custom Service (your choice)</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0a8b8;line-height:1.6;">Any service you find useful. You must justify your choice during the defense — have a clear, technical answer ready. Suggestions: Fail2ban, cAdvisor, a monitoring exporter, a mail relay. Pick something you actually understand.</div>
+          <div class="bonus-card span2">
+            <div class="bonus-card-label">05 — Custom Service (your choice)</div>
+            <div class="bonus-card-text">Any service you find useful. You must justify your choice during the defense — have a clear, technical answer ready. Suggestions: Fail2ban, cAdvisor, a monitoring exporter, a mail relay. Pick something you actually understand.</div>
           </div>
-
         </div>
 
         <div class="warning" style="margin:16px 20px 16px;">
